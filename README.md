@@ -64,6 +64,26 @@ bookkeeping/
 
 ### Basic Usage
 
+Process all available months:
+
+```bash
+python main.py
+```
+
+### Selective Month Processing
+
+List available months:
+
+```bash
+python main.py --list-months
+```
+
+Process specific month only:
+
+```bash
+python main.py --month 202408
+```
+
 ```bash
 python main.py
 ```
@@ -73,6 +93,9 @@ python main.py
 ```bash
 python main.py --input-dir data/input --output-dir data/output
 python main.py --no-interactive  # Skip interactive categorization
+python main.py --list-months     # List all available months from input files
+python main.py --month 202408    # Process only August 2024
+python main.py --month 202409 --no-interactive  # Process September 2024 without interaction
 ```
 
 ### File Format Requirements

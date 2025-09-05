@@ -10,6 +10,8 @@ def main():
     parser.add_argument('--input-dir', default='data/input', help='Input directory')
     parser.add_argument('--output-dir', default='data/output', help='Output directory')
     parser.add_argument('--no-interactive', action='store_true', help='Skip interactive categorization')
+    parser.add_argument('--month', help='Process specific month only (format: YYYYMM, e.g., 202408)')
+    parser.add_argument('--list-months', action='store_true', help='List available months from input files')
     
     args = parser.parse_args()
     
@@ -22,6 +24,25 @@ def main():
         # 1. 合并所有银行文件，按月分组
         print("Merging bank transaction files...")
         monthly_data = processor.merge_files(args.input_dir)
+        
+        # 如果用户想列出可用月份
+        if args.list_months:
+            print("\nAvailable months:")
+            for month in sorted(monthly_data.keys()):
+                count = len(monthly_data[month])
+                banks = monthly_data[month]['bank'].unique()
+                print(f"  {month}: {count} transactions from {', '.join(banks)}")
+            return 0
+        
+        # 如果用户指定了特定月份
+        if args.month:
+            if args.month not in monthly_data:
+                print(f"Month {args.month} not found in input files.")
+                print("Available months:", ", ".join(sorted(monthly_data.keys())))
+                return 1
+            # 只处理指定的月份
+            monthly_data = {args.month: monthly_data[args.month]}
+            print(f"Processing only month: {args.month}")
         
         total_transactions = sum(len(df) for df in monthly_data.values())
         total_banks = len(set(bank for df in monthly_data.values() for bank in df['bank'].unique()))
