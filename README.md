@@ -69,7 +69,7 @@ python main.py
 ### Command Line Options
 
 ```bash
-python main.py --input-dir data/input --output-file data/output/merged.csv
+python main.py --input-dir data/input --output-dir data/output
 python main.py --no-interactive  # Skip interactive categorization
 ```
 
@@ -115,11 +115,11 @@ Categories are stored in `config/category_mapping.json` and persist between runs
 3. Place files in `data/input/`
 4. Run `python main.py`
 5. Categorize any new transaction descriptions when prompted
-6. Review the merged output in `data/output/merged_transactions.csv`
+6. Review the monthly output files in `data/output/` (e.g., `202408.csv`, `202409.csv`)
 
 ## Output Format
 
-The merged file contains:
+The system creates separate CSV files for each month (named `YYYYMM.csv`) containing:
 
 - `date`: Transaction date (standardized)
 - `description`: Original transaction description

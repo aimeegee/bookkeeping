@@ -52,7 +52,7 @@ class DataProcessor:
         return df[['date', 'description', 'amount', 'bank', 'month']]
     
     def merge_files(self, input_dir="data/input"):
-        """合并所有银行文件"""
+        """合并所有银行文件，按月份分组"""
         input_path = Path(input_dir)
         all_data = []
         
@@ -79,4 +79,26 @@ class DataProcessor:
         merged_df = pd.concat(all_data, ignore_index=True)
         merged_df = merged_df.sort_values('date').reset_index(drop=True)
         
-        return merged_df
+        # 按月份分组
+        monthly_data = {}
+        for month, group in merged_df.groupby('month'):
+            # 转换月份格式从 YYYY-MM 到 YYYYMM
+            month_key = month.replace('-', '')
+            monthly_data[month_key] = group.reset_index(drop=True)
+        
+        return monthly_data
+    
+    def save_monthly_files(self, monthly_data, output_dir="data/output"):
+        """保存按月分组的数据到单独文件"""
+        output_path = Path(output_dir)
+        output_path.mkdir(parents=True, exist_ok=True)
+        
+        saved_files = []
+        for month, df in monthly_data.items():
+            filename = f"{month}.csv"
+            file_path = output_path / filename
+            df.to_csv(file_path, index=False)
+            saved_files.append(str(file_path))
+            print(f"Saved {len(df)} transactions to: {filename}")
+        
+        return saved_files

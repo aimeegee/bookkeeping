@@ -4,15 +4,17 @@ class InteractiveCLI:
     def __init__(self, category_manager):
         self.cm = category_manager
     
-    def update_categories(self, df):
+    def update_categories(self, df, month=None):
         """交互式更新分类"""
         unmapped = self.cm.get_unmapped_descriptions(df)
         
         if not unmapped:
-            print("All descriptions have been categorized!")
+            month_text = f" for {month}" if month else ""
+            print(f"All descriptions have been categorized{month_text}!")
             return df
         
-        print(f"Found {len(unmapped)} unmapped descriptions:")
+        month_text = f" in {month}" if month else ""
+        print(f"Found {len(unmapped)} unmapped descriptions{month_text}:")
         
         for desc in unmapped:
             print(f"\nDescription: '{desc}'")
