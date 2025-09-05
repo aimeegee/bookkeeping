@@ -18,5 +18,10 @@
     "name": "Bank of Melbourne",
     "revert_amount": false,
     "date_format": "%d/%m/%Y"
+  },
+  "sample": {
+    "name": "Sample Bank",
+    "revert_amount": false,
+    "date_format": "%d/%m/%Y"
   }
 }

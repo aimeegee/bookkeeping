@@ -35,6 +35,24 @@ class InteractiveCLI:
                 if category:
                     self.cm.add_mapping(desc, category)
                     print(f"Added: '{desc}' -> '{category}'")
+                    
+                    # 建议通用模式
+                    patterns = self.cm.suggest_pattern_from_mapping(desc, category)
+                    if patterns:
+                        print(f"\nSuggested patterns for automatic matching:")
+                        for pattern in patterns:
+                            print(f"  - {pattern}")
+                        
+                        add_pattern = input("Add any pattern? (y/N or specify pattern): ").strip()
+                        if add_pattern.lower() == 'y' and patterns:
+                            # 添加第一个建议的模式
+                            self.cm.add_pattern(patterns[0], category)
+                            print(f"Added pattern: '{patterns[0]}' -> '{category}'")
+                        elif add_pattern and add_pattern.lower() != 'n':
+                            # 用户指定的模式
+                            self.cm.add_pattern(add_pattern, category)
+                            print(f"Added pattern: '{add_pattern}' -> '{category}'")
+                    
                     break
                 else:
                     print("Please enter a valid category or 'skip'")
