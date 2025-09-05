@@ -40,7 +40,7 @@ bookkeeping/
 
    ```bash
    cd bookkeeping
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 2. **Prepare your transaction files:**
@@ -145,6 +145,15 @@ The system automatically recognizes common transaction patterns without manual s
 3. **Fuzzy Matching**: Similar descriptions with 60% similarity threshold
 4. **Manual Entry**: For unique descriptions not covered by patterns
 
+### Interactive Categorization
+
+When processing transactions, you'll be prompted to categorize unmapped descriptions:
+
+- **Enter category name**: Creates a mapping for future use
+- **Type 'skip'**: Skip this specific description (leaves it uncategorized)
+- **Type 'skip-all'**: Skip all remaining unmapped descriptions in this batch
+- **Pattern suggestions**: System suggests reusable patterns for common merchants
+
 ### Learning Capabilities
 
 The system automatically learns from your input:
@@ -180,9 +189,8 @@ The system creates separate CSV files for each month (named `YYYYMM.csv`) contai
 - `date`: Transaction date (standardized)
 - `description`: Original transaction description
 - `amount`: Standardized amount (positive = expense, negative = income)
-- `bank`: Bank name
-- `month`: Source month from filename
 - `comment`: Your categorized description (e.g., "coffee", "groceries", "transport")
+- `bank`: Bank name
 
 ## Enhanced Features
 
@@ -212,6 +220,8 @@ Supports transaction descriptions in multiple languages:
 
 - Use consistent category names (e.g., "Groceries" not "groceries" or "Grocery")
 - The system learns from your input - be consistent for better automation
+- Use 'skip-all' during interactive categorization to quickly process large batches
+- Run with `--no-interactive` flag to skip categorization entirely for quick processing
 - Review the `config/category_mapping.json` periodically to clean up categories
 - Backup your config files - they contain your learned categorizations
 

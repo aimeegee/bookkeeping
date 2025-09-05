@@ -92,10 +92,21 @@ class DataProcessor:
         
         saved_files = []
         for month, df in monthly_data.items():
+            # 重新排序列：date, description, amount, comment, bank (移除month)
+            df_output = df.copy()
+            
+            # 确保comment列存在
+            if 'comment' not in df_output.columns:
+                df_output['comment'] = ''
+            
+            # 重新排序列，移除month，bank放到最后
+            column_order = ['date', 'description', 'amount', 'comment', 'bank']
+            df_output = df_output[column_order]
+            
             filename = f"{month}.csv"
             file_path = output_path / filename
-            df.to_csv(file_path, index=False)
+            df_output.to_csv(file_path, index=False)
             saved_files.append(str(file_path))
-            print(f"Saved {len(df)} transactions to: {filename}")
+            print(f"Saved {len(df_output)} transactions to: {filename}")
         
         return saved_files

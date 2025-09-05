@@ -16,7 +16,11 @@ class InteractiveCLI:
         month_text = f" in {month}" if month else ""
         print(f"Found {len(unmapped)} unmapped descriptions{month_text}:")
         
+        skip_all = False
+        
         for desc in unmapped:
+            if skip_all:
+                break
             print(f"\nDescription: '{desc}'")
             
             # 显示类似的已有分类
@@ -27,9 +31,13 @@ class InteractiveCLI:
                     print(f"  {i}. {cat}")
             
             while True:
-                category = input("Enter category (or 'skip' to skip): ").strip()
+                category = input("Enter category (or 'skip' to skip, 'skip-all' to skip all remaining): ").strip()
                 
                 if category.lower() == 'skip':
+                    break
+                elif category.lower() == 'skip-all':
+                    skip_all = True
+                    print("Skipping all remaining unmapped descriptions...")
                     break
                 
                 if category:
