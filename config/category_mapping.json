@@ -1,9 +1,5 @@
 {
-  "WOOLWORTHS 1234 SYDNEY": "groceries",
-  "STARBUCKS COFFEE #123": "coffee",
-  "McDONALD'S 麦当劳 M456": "fast food",
-  "SALARY PAYMENT": "income",
-  "COLES SUPERMARKET 789": "groceries",
-  "COFFEE SHOP DOWNTOWN": "coffee",
-  "WOOLWORTHS 5678 MELB": "groceries"
+  "SPOTIFY PREMIUM SUBSCRIPTION": "entertainment",
+  "NETFLIX MONTHLY": "entertainment",
+  "AMAZON PURCHASE #456": "online shopping"
 }

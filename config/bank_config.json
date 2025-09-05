@@ -19,8 +19,8 @@
     "revert_amount": false,
     "date_format": "%d/%m/%Y"
   },
-  "test": {
-    "name": "Test Bank",
+  "sample": {
+    "name": "Sample Bank",
     "revert_amount": false,
     "date_format": "%d/%m/%Y"
   }
