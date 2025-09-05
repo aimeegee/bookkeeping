@@ -1,0 +1,22 @@
+{
+  "cba": {
+    "name": "Commonwealth Bank",
+    "revert_amount": false,
+    "date_format": "%d/%m/%Y"
+  },
+  "anz": {
+    "name": "ANZ Bank", 
+    "revert_amount": true,
+    "date_format": "%Y-%m-%d"
+  },
+  "westpac": {
+    "name": "Westpac",
+    "revert_amount": false,
+    "date_format": "%d-%m-%Y"
+  },
+  "nab": {
+    "name": "National Australia Bank",
+    "revert_amount": false,
+    "date_format": "%d/%m/%Y"
+  }
+}
