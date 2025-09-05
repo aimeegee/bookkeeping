@@ -75,6 +75,25 @@ python main.py --input-dir data/input --output-dir data/output
 python main.py --no-interactive  # Skip interactive categorization
 ```
 
+### Google Sheets Integration
+
+For Google Sheets integration, you can modify the `main.py` to include Google Sheets URLs:
+
+```python
+# Example: Adding Google Sheets support
+google_sheets = [
+    {
+        "url": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=0",
+        "filename": "08visa.csv"  # Used for bank identification
+    }
+]
+
+# Pass to merge_files method
+merged_df = processor.merge_files(args.input_dir, google_sheets_urls=google_sheets)
+```
+
+The Google Sheets URL will be automatically converted to CSV export format for processing.
+
 ### File Format Requirements
 
 Your CSV/Excel files should contain these columns (case-insensitive):
