@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 from pathlib import Path
 import re
+import requests
+from urllib.parse import urlparse
 
 class DataProcessor:
     def __init__(self, config_path="config/bank_config.json"):
@@ -11,23 +13,46 @@ class DataProcessor:
     
     def parse_filename(self, filename):
         """解析文件名获取月份和银行名"""
-        pattern = r'(\d{4}-\d{2})-(.+)\.(csv|xlsx)$'
-        match = re.match(pattern, filename)
+        # Support both formats: <month><bank-name>.csv and YYYY-MM-bankname.csv
+        
+        # Try new format first: <month><bank-name>.csv (e.g., "08amex.csv")
+        pattern_new = r'(\d{2})(.+)\.(csv|xlsx)$'
+        match = re.match(pattern_new, filename)
+        if match:
+            month_num, bank_name = match.groups()[:2]
+            # For new format, we'll determine the year from the transaction dates
+            # For now, use a placeholder that will be updated when processing data
+            month = f"YYYY-{month_num}"
+            return month, bank_name.lower()
+        
+        # Try old format: YYYY-MM-bankname.csv  
+        pattern_old = r'(\d{4}-\d{2})-(.+)\.(csv|xlsx)$'
+        match = re.match(pattern_old, filename)
         if match:
             month, bank_name = match.groups()[:2]
             return month, bank_name.lower()
-        raise ValueError(f"Invalid filename format: {filename}")
+            
+        raise ValueError(f"Invalid filename format: {filename}. Expected <month><bank-name>.csv or YYYY-MM-bankname.csv")
     
-    def load_and_process_file(self, file_path):
+    def load_and_process_file(self, file_path, filename_override=None):
         """加载并处理单个银行文件"""
-        filename = Path(file_path).name
+        if filename_override:
+            filename = filename_override
+        else:
+            filename = Path(file_path).name
+            
         month, bank_code = self.parse_filename(filename)
         
-        # 读取文件
-        if file_path.endswith('.csv'):
+        # 读取文件 - 支持 CSV, Excel, 和 Google Sheets URL
+        if file_path.startswith('http'):
+            # Google Sheets URL support
+            df = self._load_google_sheets(file_path)
+        elif file_path.endswith('.csv'):
             df = pd.read_csv(file_path)
-        else:
+        elif file_path.endswith(('.xlsx', '.xls')):
             df = pd.read_excel(file_path)
+        else:
+            raise ValueError(f"Unsupported file format: {file_path}")
         
         # 标准化列名
         df.columns = df.columns.str.lower()
@@ -41,6 +66,15 @@ class DataProcessor:
         date_format = bank_info.get('date_format', '%Y-%m-%d')
         df['date'] = pd.to_datetime(df['date'], format=date_format)
         
+        # 如果月份是占位符格式，从实际日期中提取年月
+        if month.startswith('YYYY-'):
+            month_num = month.split('-')[1]
+            # 从第一个交易日期提取年份
+            if len(df) > 0:
+                first_date = df['date'].iloc[0]
+                year = first_date.year
+                month = f"{year}-{month_num}"
+        
         # 处理金额符号
         if bank_info.get('revert_amount', False):
             df['amount'] = -df['amount']
@@ -50,12 +84,36 @@ class DataProcessor:
         df['month'] = month
         
         return df[['date', 'description', 'amount', 'bank', 'month']]
+
+    def _load_google_sheets(self, url):
+        """从Google Sheets URL加载数据"""
+        # Convert Google Sheets URL to CSV export URL
+        if 'docs.google.com/spreadsheets' in url:
+            if '/edit' in url:
+                sheet_id = url.split('/d/')[1].split('/')[0]
+                csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid=0"
+            else:
+                csv_url = url
+        else:
+            csv_url = url
+        
+        try:
+            response = requests.get(csv_url)
+            response.raise_for_status()
+            
+            # Use StringIO to read CSV data from the response
+            from io import StringIO
+            df = pd.read_csv(StringIO(response.text))
+            return df
+        except Exception as e:
+            raise ValueError(f"Failed to load Google Sheets from {url}: {e}")
     
-    def merge_files(self, input_dir="data/input"):
-        """合并所有银行文件，按月份分组"""
+    def merge_files(self, input_dir="data/input", google_sheets_urls=None):
+        """合并所有银行文件"""
         input_path = Path(input_dir)
         all_data = []
         
+        # Process local files
         for file_path in input_path.glob("*.csv"):
             try:
                 df = self.load_and_process_file(str(file_path))
@@ -71,6 +129,24 @@ class DataProcessor:
                 print(f"Processed: {file_path.name}")
             except Exception as e:
                 print(f"Error processing {file_path.name}: {e}")
+        
+        # Process Google Sheets URLs if provided
+        if google_sheets_urls:
+            for url_info in google_sheets_urls:
+                try:
+                    # url_info should be like {"url": "...", "filename": "08amex.csv"}
+                    url = url_info.get('url')
+                    filename = url_info.get('filename')
+                    if not filename:
+                        # Try to extract filename from URL or use a default
+                        filename = "google_sheet.csv"
+                    
+                    # Load and process the Google Sheets data
+                    df = self.load_and_process_file(url, filename_override=filename)
+                    all_data.append(df)
+                    print(f"Processed Google Sheet: {filename}")
+                except Exception as e:
+                    print(f"Error processing Google Sheet {url_info}: {e}")
         
         if not all_data:
             raise ValueError("No valid files found to process")

@@ -4,13 +4,14 @@ A Python tool to merge bank transaction files from different banks and automatic
 
 ## Features
 
-- 📊 Merge transaction files from multiple banks (CSV/Excel)
+- 📊 Merge transaction files from multiple banks (CSV/Excel/Google Sheets)
 - 🏦 Support for CBA, ANZ, Westpac, NAB with configurable formats
 - 🔄 Automatic amount sign normalization (positive for expenses, negative for income)
 - 🏷️ Intelligent transaction categorization with learning capability
 - 💬 Interactive CLI for manual categorization
 - 🔍 Fuzzy matching for similar descriptions
 - 💾 Persistent category mapping storage
+- 🌐 Google Sheets integration via shareable URLs
 
 ## Project Structure
 
@@ -44,8 +45,9 @@ bookkeeping/
 2. **Prepare your transaction files:**
 
    - Place bank transaction files in `data/input/`
-   - Use naming format: `YYYY-MM-bankname.csv` or `YYYY-MM-bankname.xlsx`
-   - Examples: `2024-08-cba.csv`, `2024-08-anz.xlsx`, `2024-08-westpac.csv`
+   - Supported formats: CSV, XLSX, and Google Sheets (via URL)
+   - Use naming format: `<month><bank-name>.csv/xlsx` or `YYYY-MM-bankname.csv/xlsx`
+   - Examples: `08amex.csv`, `08cba.xlsx`, `2024-08-westpac.csv`
 
 3. **Configure banks in `config/bank_config.json`:**
    ```json
