@@ -13,26 +13,19 @@ class DataProcessor:
     
     def parse_filename(self, filename):
         """解析文件名获取月份和银行名"""
-        # Support both formats: <month><bank-name>.csv and YYYY-MM-bankname.csv
+        # Support format: <bank>-<YYYYMM>.csv (e.g., "amex-202408.csv")
         
-        # Try new format first: <month><bank-name>.csv (e.g., "08amex.csv")
-        pattern_new = r'(\d{2})(.+)\.(csv|xlsx)$'
-        match = re.match(pattern_new, filename)
+        pattern = r'(.+)-(\d{6})\.(csv|xlsx)$'
+        match = re.match(pattern, filename)
         if match:
-            month_num, bank_name = match.groups()[:2]
-            # For new format, we'll determine the year from the transaction dates
-            # For now, use a placeholder that will be updated when processing data
-            month = f"YYYY-{month_num}"
-            return month, bank_name.lower()
-        
-        # Try old format: YYYY-MM-bankname.csv  
-        pattern_old = r'(\d{4}-\d{2})-(.+)\.(csv|xlsx)$'
-        match = re.match(pattern_old, filename)
-        if match:
-            month, bank_name = match.groups()[:2]
-            return month, bank_name.lower()
+            bank_name, yyyymm = match.groups()[:2]
+            # Convert YYYYMM to YYYY-MM format for internal processing
+            year = yyyymm[:4]
+            month = yyyymm[4:6]
+            month_formatted = f"{year}-{month}"
+            return month_formatted, bank_name.lower()
             
-        raise ValueError(f"Invalid filename format: {filename}. Expected <month><bank-name>.csv or YYYY-MM-bankname.csv")
+        raise ValueError(f"Invalid filename format: {filename}. Expected <bank>-<YYYYMM>.csv (e.g., amex-202408.csv)")
     
     def load_and_process_file(self, file_path, filename_override=None):
         """加载并处理单个银行文件"""
@@ -65,15 +58,6 @@ class DataProcessor:
         bank_info = self.bank_config.get(bank_code, {})
         date_format = bank_info.get('date_format', '%Y-%m-%d')
         df['date'] = pd.to_datetime(df['date'], format=date_format)
-        
-        # 如果月份是占位符格式，从实际日期中提取年月
-        if month.startswith('YYYY-'):
-            month_num = month.split('-')[1]
-            # 从第一个交易日期提取年份
-            if len(df) > 0:
-                first_date = df['date'].iloc[0]
-                year = first_date.year
-                month = f"{year}-{month_num}"
         
         # 处理金额符号
         if bank_info.get('revert_amount', False):

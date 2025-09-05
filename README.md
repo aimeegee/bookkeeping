@@ -47,9 +47,8 @@ bookkeeping/
 2. **Prepare your transaction files:**
 
    - Place bank transaction files in `data/input/`
-   - Supported formats: CSV, XLSX, and Google Sheets (via URL)
-   - Use naming format: `<month><bank-name>.csv/xlsx` or `YYYY-MM-bankname.csv/xlsx`
-   - Examples: `08amex.csv`, `08cba.xlsx`, `2024-08-westpac.csv`
+   - Use naming format: `<bank>-<YYYYMM>.csv` or `<bank>-<YYYYMM>.xlsx`
+   - Examples: `amex-202408.csv`, `cba-202408.xlsx`, `westpac-202409.csv`
 
 3. **Configure banks in `config/bank_config.json`:**
    ```json
@@ -165,7 +164,7 @@ Categories persist between runs and improve accuracy over time.
 ## Example Workflow
 
 1. Export transaction files from your banks
-2. Rename files following the `YYYY-MM-bankname.csv` format
+2. Rename files following the `<bank>-<YYYYMM>.csv` format
 3. Place files in `data/input/`
 4. Run `python main.py`
 5. Categorize any new transaction descriptions when prompted
@@ -191,7 +190,7 @@ The system automatically recognizes common patterns:
 ```csv
 Original Description              → Auto Category
 WOOLWORTHS 1234 SYDNEY           → groceries
-STARBUCKS COFFEE #123            → coffee  
+STARBUCKS COFFEE #123            → coffee
 McDONALD'S 麦当劳 M456             → fast food
 UBER TRIP 123                    → transport
 BANK FEE MONTHLY                 → bank fees
@@ -201,6 +200,7 @@ SALARY PAYMENT                   → income
 ### Multi-Language Support
 
 Supports transaction descriptions in multiple languages:
+
 - English: "STARBUCKS COFFEE" → coffee
 - Chinese: "麦当劳" (McDonald's) → fast food
 - Mixed: "McDONALD'S 麦当劳 M456" → fast food
