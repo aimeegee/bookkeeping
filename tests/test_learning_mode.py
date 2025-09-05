@@ -20,15 +20,15 @@ class TestLearningMode(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         
         # Create temporary config files
-        self.mapping_file = Path(self.temp_dir) / 'category_mapping.json'
+        self.mapping_file = Path(self.temp_dir) / 'category_mapping.yml'
         
-        # Initialize with minimal test data
-        test_mapping = {
-            "EXISTING MERCHANT": "existing_category"
-        }
+        # Initialize with minimal test data - create YAML format
+        test_mapping_yaml = """- existing_category
+  - "EXISTING MERCHANT"
+"""
         
         with open(self.mapping_file, 'w') as f:
-            json.dump(test_mapping, f)
+            f.write(test_mapping_yaml)
         
         self.cm = CategoryManager(mapping_file=str(self.mapping_file))
         self.learning_mode = LearningMode(self.cm)

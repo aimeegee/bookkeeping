@@ -1,10 +1,12 @@
 # Ignore all input and output data files (contains sensitive financial information)
 data/input/*
 data/output/*
+data/learning/*
 
 # Keep the directory structure but ignore contents
 !data/input/.gitkeep
 !data/output/.gitkeep
+!data/learning/.gitkeep
 
 # Python
 __pycache__/

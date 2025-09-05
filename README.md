@@ -20,7 +20,7 @@ A Python tool to merge bank transaction files from different banks and automatic
 bookkeeping/
 ├── config/
 │   ├── bank_config.json          # Bank configuration (date formats, amount signs)
-│   └── category_mapping.json     # Description -> Category mapping storage
+│   └── category_mapping.yml      # Description -> Category mapping storage (YAML format)
 ├── data/
 │   ├── input/                     # Original bank transaction files
 │   └── output/                    # Processed merged files
@@ -104,7 +104,7 @@ python main.py --learn-from sample.csv  # Learn categories from existing CSV fil
 The system can learn from existing categorized CSV files (same format as output files):
 
 ```bash
-python main.py --learn-from old_transactions.csv
+python main.py --learn-from data/learning/old_transactions.csv
 ```
 
 **Learning process:**
@@ -183,9 +183,23 @@ The system automatically learns from your input:
 
 ### Storage System
 
-- **`config/category_mapping.json`**: Stores exact description→category mappings
+- **`config/category_mapping.yml`**: Stores exact description→category mappings in YAML format
 - **`config/pattern_mapping.json`**: Stores custom pattern rules (optional)
 - **Built-in patterns**: Hard-coded intelligent recognition for common merchants
+
+The YAML format organizes mappings by category for better readability:
+
+```yaml
+- groceries
+  - "WOOLWORTHS 3153 GLEN HU GLENHUNTLY"
+  - "COLES SUPERMARKET MELBOURNE"
+- restaurant
+  - "THE HOT BIRD - CARNEGIE Glen Iris"
+  - "MCDONALD'S 0401 ORMOND"
+- coffee
+  - "STARBUCKS COFFEE MELBOURNE"
+  - "Workshop Glenhuntly Glen Huntly VI"
+```
 
 Categories persist between runs and improve accuracy over time.
 
@@ -240,7 +254,7 @@ Supports transaction descriptions in multiple languages:
 - Use 'skip-all' during interactive categorization to quickly process large batches
 - Run with `--no-interactive` flag to skip categorization entirely for quick processing
 - Use `--learn-from` to import categories from existing CSV files
-- Review the `config/category_mapping.json` periodically to clean up categories
+- Review the `config/category_mapping.yml` periodically to clean up categories
 - Backup your config files - they contain your learned categorizations
 
 ## Troubleshooting

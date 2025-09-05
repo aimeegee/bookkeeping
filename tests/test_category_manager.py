@@ -19,15 +19,17 @@ class TestCategoryManager(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         
         # Create temporary config files
-        self.mapping_file = Path(self.temp_dir) / 'category_mapping.json'
+        self.mapping_file = Path(self.temp_dir) / 'category_mapping.yml'
         self.patterns_file = Path(self.temp_dir) / 'pattern_mapping.json'
         
-        # Initialize with test data
-        test_mapping = {
-            "WOOLWORTHS": "groceries",
-            "MCDONALD'S": "fast food",
-            "STARBUCKS": "coffee"
-        }
+        # Initialize with test data - create YAML format
+        test_mapping_yaml = """- coffee
+  - "STARBUCKS"
+- fast food
+  - "MCDONALD'S"
+- groceries
+  - "WOOLWORTHS"
+"""
         
         test_patterns = {
             "COFFEE": "coffee",
@@ -35,7 +37,7 @@ class TestCategoryManager(unittest.TestCase):
         }
         
         with open(self.mapping_file, 'w') as f:
-            json.dump(test_mapping, f)
+            f.write(test_mapping_yaml)
         
         with open(self.patterns_file, 'w') as f:
             json.dump(test_patterns, f)
@@ -68,11 +70,12 @@ class TestCategoryManager(unittest.TestCase):
         self.cm.add_mapping("NEW MERCHANT", "shopping")
         self.assertEqual(self.cm.get_category("NEW MERCHANT"), "shopping")
         
-        # Check that it's saved
+        # Check that it's saved in YAML format
         self.cm.save_mapping()
-        with open(self.mapping_file) as f:
-            saved_mapping = json.load(f)
-        self.assertEqual(saved_mapping["NEW MERCHANT"], "shopping")
+        with open(self.mapping_file, 'r') as f:
+            yaml_content = f.read()
+        self.assertIn("NEW MERCHANT", yaml_content)
+        self.assertIn("shopping", yaml_content)
     
     def test_get_exact_match(self):
         """Test exact match retrieval for learning mode"""

@@ -1,6 +1,6 @@
 {
   "amex": {
-    "name": "Amex", 
+    "name": "AMEX", 
     "revert_amount": false,
     "date_format": "%d/%m/%Y"
   },

@@ -4,18 +4,69 @@ import difflib
 import re
 
 class CategoryManager:
-    def __init__(self, mapping_file="config/category_mapping.json", patterns_file="config/pattern_mapping.json"):
-        self.mapping_file = Path(mapping_file)
+    def __init__(self, mapping_file="config/category_mapping.yml", patterns_file="config/pattern_mapping.json"):
+        # If a specific mapping file is provided, use it directly
+        provided_mapping_file = Path(mapping_file)
+        
+        # Only use auto-detection if using default file paths
+        if mapping_file == "config/category_mapping.yml":
+            # Default behavior: check for YAML first, fall back to JSON
+            yaml_mapping_file = Path("config/category_mapping.yml")
+            json_mapping_file = Path("config/category_mapping.json")
+            
+            if yaml_mapping_file.exists():
+                self.mapping_file = yaml_mapping_file
+                self.use_yaml = True
+            elif json_mapping_file.exists():
+                self.mapping_file = json_mapping_file
+                self.use_yaml = False
+            else:
+                # Default to YAML for new installations
+                self.mapping_file = yaml_mapping_file
+                self.use_yaml = True
+        else:
+            # Use the specifically provided file
+            self.mapping_file = provided_mapping_file
+            self.use_yaml = str(provided_mapping_file).endswith('.yml') or str(provided_mapping_file).endswith('.yaml')
+        
         self.patterns_file = Path(patterns_file)
         self.mapping = self.load_mapping()
         self.patterns = self.load_patterns()
     
     def load_mapping(self):
         """加载描述->分类映射"""
-        if self.mapping_file.exists():
+        if not self.mapping_file.exists():
+            return {}
+        
+        if self.use_yaml:
+            return self._load_yaml_mapping()
+        else:
             with open(self.mapping_file) as f:
                 return json.load(f)
-        return {}
+    
+    def _load_yaml_mapping(self):
+        """从YAML文件加载映射"""
+        mapping = {}
+        current_category = None
+        
+        with open(self.mapping_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.rstrip()
+                if not line:
+                    continue
+                
+                if line.startswith('- ') and not line.startswith('  - '):
+                    # This is a category line
+                    current_category = line[2:].strip()
+                elif line.startswith('  - ') and current_category:
+                    # This is a description line
+                    description = line[4:].strip()
+                    # Remove quotes if present
+                    if description.startswith('"') and description.endswith('"'):
+                        description = description[1:-1]
+                    mapping[description] = current_category
+        
+        return mapping
     
     def load_patterns(self):
         """加载模式->分类映射"""
@@ -27,8 +78,30 @@ class CategoryManager:
     def save_mapping(self):
         """保存映射到文件"""
         self.mapping_file.parent.mkdir(exist_ok=True)
-        with open(self.mapping_file, 'w') as f:
-            json.dump(self.mapping, f, indent=2, ensure_ascii=False)
+        
+        if self.use_yaml:
+            self._save_yaml_mapping()
+        else:
+            with open(self.mapping_file, 'w') as f:
+                json.dump(self.mapping, f, indent=2, ensure_ascii=False)
+    
+    def _save_yaml_mapping(self):
+        """保存映射到YAML文件"""
+        from collections import defaultdict
+        
+        # Group descriptions by category
+        categories = defaultdict(list)
+        for description, category in self.mapping.items():
+            categories[category].append(description)
+        
+        # Write to YAML file
+        with open(self.mapping_file, 'w', encoding='utf-8') as f:
+            for category in sorted(categories.keys()):
+                f.write(f'- {category}\n')
+                for description in sorted(categories[category]):
+                    # Escape quotes in descriptions
+                    escaped_desc = description.replace('"', '\\"')
+                    f.write(f'  - "{escaped_desc}"\n')
     
     def save_patterns(self):
         """保存模式映射到文件"""
