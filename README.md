@@ -4,13 +4,14 @@ A Python tool to merge bank transaction files from different banks and automatic
 
 ## Features
 
-- 📊 Merge transaction files from multiple banks (CSV/Excel)
+- 📊 Merge transaction files from multiple banks (CSV/Excel/Google Sheets)
 - 🏦 Support for CBA, ANZ, Westpac, NAB with configurable formats
 - 🔄 Automatic amount sign normalization (positive for expenses, negative for income)
 - 🏷️ Intelligent transaction categorization with learning capability
 - 💬 Interactive CLI for manual categorization
 - 🔍 Fuzzy matching for similar descriptions
 - 💾 Persistent category mapping storage
+- 🌐 Google Sheets integration via shareable URLs
 
 ## Project Structure
 
@@ -44,8 +45,9 @@ bookkeeping/
 2. **Prepare your transaction files:**
 
    - Place bank transaction files in `data/input/`
-   - Use naming format: `YYYY-MM-bankname.csv` or `YYYY-MM-bankname.xlsx`
-   - Examples: `2024-08-cba.csv`, `2024-08-anz.xlsx`, `2024-08-westpac.csv`
+   - Supported formats: CSV, XLSX, and Google Sheets (via URL)
+   - Use naming format: `<month><bank-name>.csv/xlsx` or `YYYY-MM-bankname.csv/xlsx`
+   - Examples: `08amex.csv`, `08cba.xlsx`, `2024-08-westpac.csv`
 
 3. **Configure banks in `config/bank_config.json`:**
    ```json
@@ -72,6 +74,25 @@ python main.py
 python main.py --input-dir data/input --output-dir data/output
 python main.py --no-interactive  # Skip interactive categorization
 ```
+
+### Google Sheets Integration
+
+For Google Sheets integration, you can modify the `main.py` to include Google Sheets URLs:
+
+```python
+# Example: Adding Google Sheets support
+google_sheets = [
+    {
+        "url": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=0",
+        "filename": "08visa.csv"  # Used for bank identification
+    }
+]
+
+# Pass to merge_files method
+merged_df = processor.merge_files(args.input_dir, google_sheets_urls=google_sheets)
+```
+
+The Google Sheets URL will be automatically converted to CSV export format for processing.
 
 ### File Format Requirements
 
