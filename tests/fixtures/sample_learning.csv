@@ -1,0 +1,7 @@
+date,description,amount,category,bank,comment
+2025-08-01,WOOLWORTHS GLEN HUNTLY,45.50,groceries,American Express,
+2025-08-02,MCDONALD'S ORMOND,28.90,fast food,American Express,
+2025-08-03,STARBUCKS COFFEE,6.50,coffee,American Express,
+2025-08-04,AMAZON PURCHASE,129.99,online shopping,American Express,
+2025-08-05,UNKNOWN MERCHANT,55.00,,American Express,need to categorize
+2025-08-06,MYSTERY STORE,33.75,,Commonwealth Bank,some store I visited

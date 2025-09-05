@@ -1,4 +1,8 @@
-from .category_manager import CategoryManager
+try:
+    from .category_manager import CategoryManager
+except ImportError:
+    # For when running tests or standalone
+    from category_manager import CategoryManager
 
 class InteractiveCLI:
     def __init__(self, category_manager):

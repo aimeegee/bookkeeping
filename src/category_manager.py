@@ -158,3 +158,7 @@ class CategoryManager:
                 suggestions.append(pattern)
         
         return suggestions
+    
+    def get_exact_match(self, description):
+        """获取精确匹配的分类，用于学习模式"""
+        return self.mapping.get(description)

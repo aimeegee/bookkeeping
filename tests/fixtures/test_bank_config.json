@@ -1,0 +1,17 @@
+{
+  "cba": {
+    "name": "Commonwealth Bank",
+    "revert_amount": true,
+    "date_format": "%d/%m/%Y"
+  },
+  "amex": {
+    "name": "American Express", 
+    "revert_amount": false,
+    "date_format": "%d/%m/%Y"
+  },
+  "westpac": {
+    "name": "Westpac Bank",
+    "revert_amount": true,
+    "date_format": "%d/%m/%Y"
+  }
+}

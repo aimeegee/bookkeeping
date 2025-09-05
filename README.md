@@ -96,7 +96,23 @@ python main.py --no-interactive  # Skip interactive categorization
 python main.py --list-months     # List all available months from input files
 python main.py --month 202408    # Process only August 2024
 python main.py --month 202409 --no-interactive  # Process September 2024 without interaction
+python main.py --learn-from sample.csv  # Learn categories from existing CSV file
 ```
+
+### Learning Mode
+
+The system can learn from existing categorized CSV files (same format as output files):
+
+```bash
+python main.py --learn-from old_transactions.csv
+```
+
+**Learning process:**
+
+1. **Import existing categories**: Automatically adds new description→category mappings
+2. **Handle conflicts**: Asks which mapping to keep when conflicts arise
+3. **Process uncategorized**: Helps categorize rows without categories using description + comment
+4. **Skip options**: Use 'skip' or 'skip-all' to quickly process large files
 
 ### File Format Requirements
 
@@ -189,8 +205,9 @@ The system creates separate CSV files for each month (named `YYYYMM.csv`) contai
 - `date`: Transaction date (standardized)
 - `description`: Original transaction description
 - `amount`: Standardized amount (positive = expense, negative = income)
-- `comment`: Your categorized description (e.g., "coffee", "groceries", "transport")
+- `category`: Your categorized description (e.g., "coffee", "groceries", "transport")
 - `bank`: Bank name
+- `comment`: Additional notes or comments
 
 ## Enhanced Features
 
@@ -222,10 +239,88 @@ Supports transaction descriptions in multiple languages:
 - The system learns from your input - be consistent for better automation
 - Use 'skip-all' during interactive categorization to quickly process large batches
 - Run with `--no-interactive` flag to skip categorization entirely for quick processing
+- Use `--learn-from` to import categories from existing CSV files
 - Review the `config/category_mapping.json` periodically to clean up categories
 - Backup your config files - they contain your learned categorizations
 
 ## Troubleshooting
+
+**File format errors**: Ensure your CSV files have the required columns
+**Date parsing errors**: Check the date format in your bank config
+**Missing categories**: Run without `--no-interactive` to categorize new descriptions
+
+## Testing
+
+The project includes a comprehensive test suite to ensure reliability and correctness.
+
+### Test Structure
+
+```
+tests/
+├── __init__.py
+├── run_tests.py              # Test runner script
+├── test_data_processor.py    # Core data processing tests
+├── test_category_manager.py  # Category management tests
+├── test_learning_mode.py     # Learning functionality tests
+├── test_integration.py       # End-to-end integration tests
+└── fixtures/                 # Test data files
+    ├── sample_amex.csv
+    ├── sample_cba.csv
+    ├── sample_learning.csv
+    └── test_bank_config.json
+```
+
+### Running Tests
+
+**Run all tests:**
+
+```bash
+python tests/run_tests.py
+```
+
+**Using pytest (recommended):**
+
+```bash
+# Install testing dependencies
+pip install pytest pytest-cov
+
+# Run all tests
+python -m pytest tests/
+
+# Run specific test file
+python -m pytest tests/test_data_processor.py
+
+# Run with coverage report
+python -m pytest tests/ --cov=src --cov-report=html
+```
+
+**Run specific test categories:**
+
+```bash
+# Data processing tests
+python -m pytest tests/test_data_processor.py
+
+# Category management tests
+python -m pytest tests/test_category_manager.py
+
+# Learning mode tests
+python -m pytest tests/test_learning_mode.py
+
+# Integration tests
+python -m pytest tests/test_integration.py
+```
+
+### Test Coverage
+
+The test suite covers:
+
+- ✅ **File processing**: CSV parsing, date handling, amount normalization
+- ✅ **Category management**: Exact matching, pattern matching, fuzzy matching
+- ✅ **Learning mode**: CSV import, conflict resolution, interactive categorization
+- ✅ **Integration**: End-to-end workflow testing
+- ✅ **Edge cases**: Invalid files, missing columns, encoding issues
+
+**Troubleshooting**
 
 **File format errors**: Ensure your CSV files have the required columns
 **Date parsing errors**: Check the date format in your bank config

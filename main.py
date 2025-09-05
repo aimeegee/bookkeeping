@@ -4,6 +4,7 @@ from pathlib import Path
 from src.data_processor import DataProcessor
 from src.category_manager import CategoryManager
 from src.interactive_cli import InteractiveCLI
+from src.learning_mode import LearningMode
 
 def main():
     parser = argparse.ArgumentParser(description='Bank Transaction Merger and Categorizer')
@@ -12,6 +13,25 @@ def main():
     parser.add_argument('--no-interactive', action='store_true', help='Skip interactive categorization')
     parser.add_argument('--month', help='Process specific month only (format: YYYYMM, e.g., 202408)')
     parser.add_argument('--list-months', action='store_true', help='List available months from input files')
+    parser.add_argument('--learn-from', help='Learn categories from an existing CSV file (same format as output)')
+    
+    args = parser.parse_args()
+    
+    # 初始化组件
+    processor = DataProcessor()
+    category_manager = CategoryManager()
+    cli = InteractiveCLI(category_manager)
+    learning_mode = LearningMode(category_manager)
+    
+    # 如果是学习模式
+    if args.learn_from:
+        if not Path(args.learn_from).exists():
+            print(f"Error: Learning file '{args.learn_from}' not found")
+            return 1
+        
+        print(f"Learning mode: Processing '{args.learn_from}'")
+        success = learning_mode.learn_from_csv(args.learn_from)
+        return 0 if success else 1
     
     args = parser.parse_args()
     
