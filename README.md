@@ -4,7 +4,7 @@ A Python tool to merge bank transaction files from different banks and automatic
 
 ## Features
 
-- 📊 Merge transaction files from multiple banks (CSV/Excel/Google Sheets)
+- 📊 Merge transaction files from multiple banks (CSV)
 - 🏦 Support for CBA, ANZ, Westpac, NAB with configurable formats
 - 🔄 Automatic amount sign normalization (positive for expenses, negative for income)
 - 🏷️ **Intelligent transaction categorization** with 94% automatic recognition
@@ -13,7 +13,6 @@ A Python tool to merge bank transaction files from different banks and automatic
 - 🧠 Smart pattern recognition for common merchants and categories
 - 🌏 Multi-language support (English, Chinese characters)
 - 💾 Persistent category mapping storage
-- 🌐 Google Sheets integration via shareable URLs
 
 ## Project Structure
 
@@ -46,9 +45,9 @@ bookkeeping/
 
 2. **Prepare your transaction files:**
 
-   - Place bank transaction files in `data/input/`
-   - Use naming format: `<bank>-<YYYYMM>.csv` or `<bank>-<YYYYMM>.xlsx`
-   - Examples: `amex-202408.csv`, `cba-202408.xlsx`, `westpac-202409.csv`
+   - Place bank transaction CSV files in `data/input/`
+   - Use naming format: `<bank>-<YYYYMM>.csv`
+   - Examples: `amex-202408.csv`, `cba-202408.csv`, `westpac-202409.csv`
 
 3. **Configure banks in `config/bank_config.json`:**
    ```json
@@ -76,28 +75,9 @@ python main.py --input-dir data/input --output-dir data/output
 python main.py --no-interactive  # Skip interactive categorization
 ```
 
-### Google Sheets Integration
-
-For Google Sheets integration, you can modify the `main.py` to include Google Sheets URLs:
-
-```python
-# Example: Adding Google Sheets support
-google_sheets = [
-    {
-        "url": "https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit#gid=0",
-        "filename": "08visa.csv"  # Used for bank identification
-    }
-]
-
-# Pass to merge_files method
-merged_df = processor.merge_files(args.input_dir, google_sheets_urls=google_sheets)
-```
-
-The Google Sheets URL will be automatically converted to CSV export format for processing.
-
 ### File Format Requirements
 
-Your CSV/Excel files should contain these columns (case-insensitive):
+Your CSV files should contain these columns (case-insensitive):
 
 - `date` - Transaction date
 - `description` - Transaction description
@@ -214,6 +194,6 @@ Supports transaction descriptions in multiple languages:
 
 ## Troubleshooting
 
-**File format errors**: Ensure your CSV/Excel files have the required columns
+**File format errors**: Ensure your CSV files have the required columns
 **Date parsing errors**: Check the date format in your bank config
 **Missing categories**: Run without `--no-interactive` to categorize new descriptions
