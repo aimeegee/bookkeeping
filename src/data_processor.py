@@ -92,15 +92,21 @@ class DataProcessor:
         
         saved_files = []
         for month, df in monthly_data.items():
-            # 重新排序列：date, description, amount, comment, bank (移除month)
+            # 重新排序列：date, description, amount, category, bank, comment
             df_output = df.copy()
             
-            # 确保comment列存在
+            # 确保comment列存在并重命名为category
             if 'comment' not in df_output.columns:
                 df_output['comment'] = ''
             
-            # 重新排序列，移除month，bank放到最后
-            column_order = ['date', 'description', 'amount', 'comment', 'bank']
+            # 重命名comment列为category
+            df_output = df_output.rename(columns={'comment': 'category'})
+            
+            # 添加新的comment列（空白）
+            df_output['comment'] = ''
+            
+            # 重新排序列：date, description, amount, category, bank, comment
+            column_order = ['date', 'description', 'amount', 'category', 'bank', 'comment']
             df_output = df_output[column_order]
             
             filename = f"{month}.csv"

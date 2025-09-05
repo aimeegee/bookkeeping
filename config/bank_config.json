@@ -1,11 +1,11 @@
 {
   "amex": {
-    "name": "American Express", 
+    "name": "Amex", 
     "revert_amount": false,
     "date_format": "%d/%m/%Y"
   },
   "cba": {
-    "name": "Commonwealth Bank",
+    "name": "CBA",
     "revert_amount": true,
     "date_format": "%d/%m/%Y"
   },
