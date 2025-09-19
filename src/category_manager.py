@@ -59,12 +59,31 @@ class CategoryManager:
                     # This is a category line
                     current_category = line[2:].strip()
                 elif line.startswith('  - ') and current_category:
-                    # This is a description line
-                    description = line[4:].strip()
+                    # This is a description line, possibly with comment
+                    description_part = line[4:].strip()
+                    
+                    # Check for comment (everything after #)
+                    if ' # ' in description_part:
+                        desc_with_quotes, comment = description_part.split(' # ', 1)
+                        comment = comment.strip()
+                    else:
+                        desc_with_quotes = description_part
+                        comment = ''
+                    
                     # Remove quotes if present
-                    if description.startswith('"') and description.endswith('"'):
-                        description = description[1:-1]
-                    mapping[description] = current_category
+                    if desc_with_quotes.startswith('"') and desc_with_quotes.endswith('"'):
+                        description = desc_with_quotes[1:-1]
+                    else:
+                        description = desc_with_quotes
+                    
+                    # Store in new format if there's a comment, otherwise backward compatible
+                    if comment:
+                        mapping[description] = {
+                            'category': current_category,
+                            'comment': comment
+                        }
+                    else:
+                        mapping[description] = current_category
         
         return mapping
     
@@ -89,19 +108,28 @@ class CategoryManager:
         """保存映射到YAML文件"""
         from collections import defaultdict
         
-        # Group descriptions by category
+        # Group descriptions by category with comments
         categories = defaultdict(list)
-        for description, category in self.mapping.items():
-            categories[category].append(description)
+        for description, mapping_value in self.mapping.items():
+            if isinstance(mapping_value, dict):
+                category = mapping_value['category']
+                comment = mapping_value.get('comment', '')
+                categories[category].append((description, comment))
+            else:
+                # Old format - convert to new format
+                categories[mapping_value].append((description, ''))
         
-        # Write to YAML file
+        # Write to YAML file with comments
         with open(self.mapping_file, 'w', encoding='utf-8') as f:
             for category in sorted(categories.keys()):
                 f.write(f'- {category}\n')
-                for description in sorted(categories[category]):
+                for description, comment in sorted(categories[category], key=lambda x: x[0]):
                     # Escape quotes in descriptions
                     escaped_desc = description.replace('"', '\\"')
-                    f.write(f'  - "{escaped_desc}"\n')
+                    if comment:
+                        f.write(f'  - "{escaped_desc}" # {comment}\n')
+                    else:
+                        f.write(f'  - "{escaped_desc}"\n')
     
     def save_patterns(self):
         """保存模式映射到文件"""
@@ -113,7 +141,12 @@ class CategoryManager:
         """获取描述对应的分类"""
         # 1. 直接匹配
         if description in self.mapping:
-            return self.mapping[description]
+            mapping_value = self.mapping[description]
+            # Handle both old format (string) and new format (dict)
+            if isinstance(mapping_value, dict):
+                return mapping_value['category']
+            else:
+                return mapping_value
         
         # 2. 模式匹配 (关键词/品牌名识别)
         category = self._match_patterns(description)
@@ -125,7 +158,12 @@ class CategoryManager:
             description, self.mapping.keys(), n=1, cutoff=0.6  # 降低阈值，提高匹配率
         )
         if close_matches:
-            return self.mapping[close_matches[0]]
+            mapping_value = self.mapping[close_matches[0]]
+            # Handle both old format (string) and new format (dict)
+            if isinstance(mapping_value, dict):
+                return mapping_value['category']
+            else:
+                return mapping_value
         
         return None
     
@@ -192,9 +230,18 @@ class CategoryManager:
         
         return None
     
-    def add_mapping(self, description, category):
-        """添加新的映射"""
-        self.mapping[description] = category
+    def add_mapping(self, description, category, is_programmatic=False):
+        """添加新的映射
+        
+        Args:
+            description: 交易描述
+            category: 分类
+            is_programmatic: 是否为程序自动添加（非用户交互）
+        """
+        self.mapping[description] = {
+            'category': category,
+            'comment': 'UNCONFIRMED' if is_programmatic else ''
+        }
         self.save_mapping()
     
     def add_pattern(self, pattern, category):
@@ -234,4 +281,8 @@ class CategoryManager:
     
     def get_exact_match(self, description):
         """获取精确匹配的分类，用于学习模式"""
-        return self.mapping.get(description)
+        mapping_value = self.mapping.get(description)
+        if isinstance(mapping_value, dict):
+            return mapping_value['category']
+        else:
+            return mapping_value

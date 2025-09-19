@@ -45,7 +45,7 @@ class InteractiveCLI:
                     break
                 
                 if category:
-                    self.cm.add_mapping(desc, category)
+                    self.cm.add_mapping(desc, category, is_programmatic=False)
                     print(f"Added: '{desc}' -> '{category}'")
                     
                     # 建议通用模式

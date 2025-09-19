@@ -71,10 +71,10 @@ class LearningMode:
             existing_category = self.cm.get_exact_match(description)
             
             if existing_category is None:
-                # 添加新的映射
-                self.cm.add_mapping(description, category)
+                # 添加新的映射 - 从CSV学习，标记为程序自动添加
+                self.cm.add_mapping(description, category, is_programmatic=True)
                 learned_count += 1
-                print(f"  Learned: '{description}' -> '{category}'")
+                print(f"  Learned: '{description}' -> '{category}' (UNCONFIRMED)")
             elif existing_category != category:
                 # 映射冲突，询问用户
                 print(f"\nConflict found:")
@@ -84,7 +84,7 @@ class LearningMode:
                 
                 choice = input("Keep (e)xisting, use (n)ew, or (s)kip? [e/n/s]: ").strip().lower()
                 if choice == 'n':
-                    self.cm.add_mapping(description, category)
+                    self.cm.add_mapping(description, category, is_programmatic=False)
                     learned_count += 1
                     print(f"  Updated: '{description}' -> '{category}'")
                 elif choice == 'e':
@@ -143,7 +143,7 @@ class LearningMode:
                     print("Skipping all remaining uncategorized transactions...")
                     break
                 elif category:
-                    self.cm.add_mapping(description, category)
+                    self.cm.add_mapping(description, category, is_programmatic=False)
                     print(f"Added: '{description}' -> '{category}'")
                     
                     # 建议通用模式
